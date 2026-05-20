@@ -4,7 +4,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 360
 
     steps:
@@ -24,7 +24,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install -y python3 python3-pip clang
+          sudo apt-get install -y python3 python3-pip clang-14
+          sudo update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-14/bin/clang 100
           pip3 install numpy
 
       - name: Install Bazel 6.1.0
@@ -53,6 +54,11 @@ jobs:
         run: |
           git clone --depth=1 --branch v2.14.1 \
             https://github.com/tensorflow/tensorflow.git /home/runner/tensorflow
+
+      - name: Patch TF source for clang-14 compatibility
+        run: |
+          # Fix missing cstdint includes that clang-14 requires
+          sed -i '1s/^/#include <cstdint>\n/' /home/runner/tensorflow/tensorflow/tsl/lib/io/cache.h
 
       - name: Configure TensorFlow
         working-directory: /home/runner/tensorflow
