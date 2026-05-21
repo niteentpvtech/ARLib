@@ -70,36 +70,36 @@ jobs:
           export TF_NEED_CLANG=1
           export CLANG_COMPILER_PATH=$(which clang)
           export ANDROID_NDK_HOME=/home/runner/android-ndk-r21e
-          export ANDROID_NDK_API_LEVEL=21
           export ANDROID_SDK_HOME=/home/runner/android-sdk
           export ANDROID_BUILD_TOOLS_VERSION=30.0.3
-          export ANDROID_SDK_API_LEVEL=21
-          export CC_OPT_FLAGS="-march=native"
-          export TF_SET_ANDROID_WORKSPACE=1
-          for api in 21 22 23 24 25 26 27 28 29 30; do
-            mkdir -p /home/runner/android-ndk-r21e/platforms/android-$api
-          done
-          yes "" | ./configure 2>&1 | tail -15
-          echo 'build --linkopt=-Wl,-z,max-page-size=16384' >> .bazelrc
-          echo "Configure done"
-          grep "ANDROID" .tf_configure.bazelrc
+          export ANDROID_API_LEVEL=21
+          yes "" | ./configure
 
-      - name: Build TFLite AAR
+      - name: Setup Bazel cache and linker flags
         working-directory: /home/runner/tensorflow
         run: |
-          bash tensorflow/lite/tools/build_aar.sh \
-            --input_models=$GITHUB_WORKSPACE/frozen_HAR.tflite \
-            --target_archs=arm64-v8a
+          mkdir -p /home/runner/bazel-cache
+          echo "build --disk_cache=/home/runner/bazel-cache" >> .bazelrc
+          echo 'build --linkopt=-Wl,-z,max-page-size=16384' >> .bazelrc
+
+      - name: Build select-tf-ops AAR only
+        working-directory: /home/runner/tensorflow
+        run: |
+          # Build select-tf-ops with Android config (faster, more targeted)
+          bazel build -c opt \
+            --config=android_arm64 \
+            --linkopt=-Wl,-z,max-page-size=16384 \
+            //tensorflow/lite/java:tensorflow-lite-select-tf-ops
 
       - name: Verify 16KB alignment
         run: |
-          unzip -p /home/runner/tensorflow/bazel-bin/tmp/tensorflow-lite.aar \
-            "jni/arm64-v8a/libtensorflowlite_jni.so" > /tmp/tflite.so
-          readelf -l /tmp/tflite.so | grep -A2 "LOAD"
+          unzip -p /home/runner/tensorflow/bazel-bin/tensorflow/lite/java/tensorflow-lite-select-tf-ops.aar \
+            "jni/arm64-v8a/libtensorflowlite_flex_jni.so" > /tmp/flex.so
+          readelf -l /tmp/flex.so | grep -A2 "LOAD"
 
       - name: Upload AAR
         uses: actions/upload-artifact@v4
         with:
-          name: tensorflow-lite-16kb-aar
-          path: /home/runner/tensorflow/bazel-bin/tmp/*.aar
+          name: tensorflow-lite-select-tf-ops-16kb-aar
+          path: /home/runner/tensorflow/bazel-bin/tensorflow/lite/java/tensorflow-lite-select-tf-ops.aar
           retention-days: 7
