@@ -121,4 +121,4 @@ EOF
         with:
           name: tensorflow-lite-select-tf-ops-16kb-aar
           path: /home/runner/tensorflow/bazel-bin/tmp/tensorflow-lite-select-tf-ops.aar
-          retention-days: 7
+          retention-days: 14
