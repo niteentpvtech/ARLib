@@ -90,9 +90,8 @@ jobs:
             echo "build --action_env ANDROID_BUILD_TOOLS_VERSION=30.0.3" >> .tf_configure.bazelrc
             echo "build --action_env ANDROID_API_LEVEL=21" >> .tf_configure.bazelrc
             echo "build --config=android_arm64" >> .tf_configure.bazelrc
-            echo "build --crosstool_top=@android_ndk_r21e_toolchain//:toolchain" >> .tf_configure.bazelrc
+            echo "build --crosstool_top=//external:android/crosstool" >> .tf_configure.bazelrc
             echo "build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain" >> .tf_configure.bazelrc
-            echo "build --extra_toolchains=@bazel_tools//tools/android:sdk_toolchain" >> .tf_configure.bazelrc
           fi
           # Verify Android config
           echo "=== Contents of .tf_configure.bazelrc ==="
