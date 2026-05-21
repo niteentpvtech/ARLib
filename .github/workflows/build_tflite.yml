@@ -92,6 +92,7 @@ jobs:
             echo "build --config=android_arm64" >> .tf_configure.bazelrc
             echo "build --crosstool_top=//external:android/crosstool" >> .tf_configure.bazelrc
             echo "build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain" >> .tf_configure.bazelrc
+            echo "build --android_sdk_path=/home/runner/android-sdk" >> .tf_configure.bazelrc
           fi
           # Verify Android config
           echo "=== Contents of .tf_configure.bazelrc ==="
