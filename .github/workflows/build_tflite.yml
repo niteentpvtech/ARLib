@@ -111,6 +111,8 @@ jobs:
       - name: Build select-tf-ops AAR only
         working-directory: /home/runner/tensorflow
         run: |
+          # Add debug flag for toolchain resolution
+          echo "build --toolchain_resolution_debug='@bazel_tools//tools/android:sdk_toolchain_type'" >> .bazelrc
           # Use build_aar.sh which properly sets up Android toolchains
           # This will build both but faster since we're only targeting one arch
           bash tensorflow/lite/tools/build_aar.sh \
