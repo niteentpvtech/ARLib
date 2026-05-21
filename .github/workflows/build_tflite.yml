@@ -98,6 +98,8 @@ jobs:
           cat .tf_configure.bazelrc
           echo "=== Testing Android toolchain ==="
           bazel query "@android_ndk_r21e_toolchain//:all" 2>&1 || echo "Toolchain not found"
+          echo "=== Testing Android crosstool ==="
+          bazel query "//external:android/crosstool" 2>&1 || echo "Crosstool not found"
 
       - name: Setup Bazel cache and linker flags
         working-directory: /home/runner/tensorflow
