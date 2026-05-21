@@ -85,15 +85,13 @@ jobs:
           # If interactive failed, try non-interactive Android setup
           if ! grep -q "ANDROID_SDK_HOME" .tf_configure.bazelrc; then
             echo "Android config failed, setting up manually..."
-            cat >> .tf_configure.bazelrc << 'EOF'
-build --action_env ANDROID_NDK_HOME=/home/runner/android-ndk-r21e
-build --action_env ANDROID_SDK_HOME=/home/runner/android-sdk
-build --action_env ANDROID_BUILD_TOOLS_VERSION=30.0.3
-build --action_env ANDROID_API_LEVEL=21
-build --config=android_arm64
-build --crosstool_top=@android_ndk_r21e_toolchain//:toolchain
-build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
-EOF
+            echo "build --action_env ANDROID_NDK_HOME=/home/runner/android-ndk-r21e" >> .tf_configure.bazelrc
+            echo "build --action_env ANDROID_SDK_HOME=/home/runner/android-sdk" >> .tf_configure.bazelrc
+            echo "build --action_env ANDROID_BUILD_TOOLS_VERSION=30.0.3" >> .tf_configure.bazelrc
+            echo "build --action_env ANDROID_API_LEVEL=21" >> .tf_configure.bazelrc
+            echo "build --config=android_arm64" >> .tf_configure.bazelrc
+            echo "build --crosstool_top=@android_ndk_r21e_toolchain//:toolchain" >> .tf_configure.bazelrc
+            echo "build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain" >> .tf_configure.bazelrc
           fi
           # Verify Android config
           grep "ANDROID" .tf_configure.bazelrc
