@@ -77,7 +77,7 @@ jobs:
           for api in 21 22 23 24 25 26 27 28 29 30; do
             mkdir -p /home/runner/android-ndk-r21e/platforms/android-$api
           done
-          yes -e "\ny\n" | ./configure
+          printf "\n\ny\n" | ./configure
           # Verify Android config
           grep "ANDROID" .tf_configure.bazelrc
 
