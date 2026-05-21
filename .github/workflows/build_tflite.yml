@@ -8,10 +8,20 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     timeout-minutes: 360
+    env:
+      BAZEL_CACHE: /home/runner/bazel-cache
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Restore Bazel cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/bazel-cache
+          key: bazel-tflite-${{ runner.os }}-${{ hashFiles('.github/workflows/build_tflite.yml') }}
+          restore-keys: |
+            bazel-tflite-${{ runner.os }}-
 
       - name: Free disk space
         run: |
