@@ -77,7 +77,20 @@ jobs:
           for api in 21 22 23 24 25 26 27 28 29 30; do
             mkdir -p /home/runner/android-ndk-r21e/platforms/android-$api
           done
-          printf "\n\ny\n" | ./configure
+          # Force Android configuration
+          export TF_CONFIGURE_ANDROID=1
+          printf "\n\ny\n" | ./configure || true
+          # If interactive failed, try non-interactive Android setup
+          if ! grep -q "ANDROID_SDK_HOME" .tf_configure.bazelrc; then
+            echo "Android config failed, setting up manually..."
+            cat >> .tf_configure.bazelrc << EOF
+build --action_env ANDROID_NDK_HOME=/home/runner/android-ndk-r21e
+build --action_env ANDROID_SDK_HOME=/home/runner/android-sdk
+build --action_env ANDROID_BUILD_TOOLS_VERSION=30.0.3
+build --action_env ANDROID_API_LEVEL=21
+build --config=android_arm64
+EOF
+          fi
           # Verify Android config
           grep "ANDROID" .tf_configure.bazelrc
 
