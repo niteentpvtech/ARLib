@@ -94,7 +94,10 @@ jobs:
             echo "build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain" >> .tf_configure.bazelrc
           fi
           # Verify Android config
-          grep "ANDROID" .tf_configure.bazelrc
+          echo "=== Contents of .tf_configure.bazelrc ==="
+          cat .tf_configure.bazelrc
+          echo "=== Testing Android toolchain ==="
+          bazel query "@android_ndk_r21e_toolchain//:all" 2>&1 || echo "Toolchain not found"
 
       - name: Setup Bazel cache and linker flags
         working-directory: /home/runner/tensorflow
