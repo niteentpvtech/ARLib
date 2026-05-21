@@ -84,29 +84,15 @@ jobs:
       - name: Patch WORKSPACE with Android SDK and NDK repos
         working-directory: /home/runner/tensorflow
         run: |
-          python3 - << 'PYEOF'
-          import re
+          python3 -c "
           ws = open('WORKSPACE').read()
-          android_rules = """
-android_sdk_repository(
-    name = "androidsdk",
-    path = "/home/runner/android-sdk",
-    api_level = 21,
-    build_tools_version = "30.0.3",
-)
-
-android_ndk_repository(
-    name = "androidndk",
-    path = "/home/runner/android-ndk-r21e",
-    api_level = 21,
-)
-"""
+          rules = '\nandroid_sdk_repository(\n    name = \"androidsdk\",\n    path = \"/home/runner/android-sdk\",\n    api_level = 21,\n    build_tools_version = \"30.0.3\",\n)\n\nandroid_ndk_repository(\n    name = \"androidndk\",\n    path = \"/home/runner/android-ndk-r21e\",\n    api_level = 21,\n)\n'
           if 'android_sdk_repository' not in ws:
-              open('WORKSPACE', 'a').write(android_rules)
-              print('Patched WORKSPACE with Android repos')
+              open('WORKSPACE', 'a').write(rules)
+              print('Patched WORKSPACE')
           else:
-              print('WORKSPACE already has Android repos')
-          PYEOF
+              print('Already patched')
+          "
           grep -A3 'android_sdk_repository' WORKSPACE || echo 'Not found'
 
       - name: Setup Bazel cache and linker flags
