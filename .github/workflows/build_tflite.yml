@@ -15,14 +15,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Restore Bazel cache
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/bazel-cache
-          key: bazel-tflite-cache
-          restore-keys: |
-            bazel-tflite-cache
-
       - name: Free disk space
         run: |
           sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
@@ -105,11 +97,17 @@ jobs:
           "
           grep -A3 'android_sdk_repository' WORKSPACE || echo 'Not found'
 
-      - name: Setup Bazel cache and linker flags
+      - name: Setup Bazel flags for faster build
         working-directory: /home/runner/tensorflow
         run: |
-          mkdir -p /home/runner/bazel-cache
-          echo "build --disk_cache=/home/runner/bazel-cache" >> .bazelrc
+          # Disable features we don't need to speed up build
+          echo "build --noenable_platform_specific_config" >> .bazelrc
+          echo "build --define=no_aws_support=true" >> .bazelrc
+          echo "build --define=no_gcp_support=true" >> .bazelrc
+          echo "build --define=no_hdfs_support=true" >> .bazelrc
+          echo "build --define=with_xla_support=false" >> .bazelrc
+          echo "build --define=no_nccl_support=true" >> .bazelrc
+          echo "build --config=no_tfrt" >> .bazelrc
           echo 'build --linkopt=-Wl,-z,max-page-size=16384' >> .bazelrc
 
       - name: Build select-tf-ops AAR only
