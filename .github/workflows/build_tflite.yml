@@ -115,15 +115,20 @@ jobs:
       - name: Build select-tf-ops AAR only
         working-directory: /home/runner/tensorflow
         run: |
-          # Use build_aar.sh which properly sets up Android toolchains
-          # This will build both but faster since we're only targeting one arch
-          bash tensorflow/lite/tools/build_aar.sh \
-            --input_models=$GITHUB_WORKSPACE/frozen_HAR.tflite \
-            --target_archs=arm64-v8a
+          # Build select-tf-ops AAR directly with 16KB alignment
+          bazel build -c opt \
+            --cxxopt=--std=c++17 \
+            --fat_apk_cpu=arm64-v8a \
+            --define=android_dexmerger_tool=d8_dexmerger \
+            --define=android_incremental_dexing_tool=d8_dexbuilder \
+            --define=xnn_enable_arm_fp16=false \
+            --host_crosstool_top=@bazel_tools//tools/cpp:toolchain \
+            --linkopt=-Wl,-z,max-page-size=16384 \
+            //tensorflow/lite/java:tensorflow-lite-select-tf-ops
 
       - name: Verify 16KB alignment
         run: |
-          unzip -p /home/runner/tensorflow/bazel-bin/tmp/tensorflow-lite-select-tf-ops.aar \
+          unzip -p /home/runner/tensorflow/bazel-bin/tensorflow/lite/java/tensorflow-lite-select-tf-ops.aar \
             "jni/arm64-v8a/libtensorflowlite_flex_jni.so" > /tmp/flex.so
           readelf -l /tmp/flex.so | grep -A2 "LOAD"
 
@@ -131,5 +136,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tensorflow-lite-select-tf-ops-16kb-aar
-          path: /home/runner/tensorflow/bazel-bin/tmp/tensorflow-lite-select-tf-ops.aar
+          path: /home/runner/tensorflow/bazel-bin/tensorflow/lite/java/tensorflow-lite-select-tf-ops.aar
           retention-days: 14
