@@ -108,6 +108,8 @@ jobs:
           echo "build --define=with_xla_support=false" >> .bazelrc
           echo "build --define=no_nccl_support=true" >> .bazelrc
           echo "build --config=no_tfrt" >> .bazelrc
+          echo "build --cxxopt=-std=c++14" >> .bazelrc
+          echo "build --host_cxxopt=-std=c++14" >> .bazelrc
           echo 'build --linkopt=-Wl,-z,max-page-size=16384' >> .bazelrc
 
       - name: Build select-tf-ops AAR only
