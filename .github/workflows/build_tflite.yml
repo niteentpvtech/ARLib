@@ -19,9 +19,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/bazel-cache
-          key: bazel-tflite-${{ runner.os }}-${{ hashFiles('.github/workflows/build_tflite.yml') }}
+          key: bazel-tflite-cache
           restore-keys: |
-            bazel-tflite-${{ runner.os }}-
+            bazel-tflite-cache
 
       - name: Free disk space
         run: |
